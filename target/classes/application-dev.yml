@@ -1,0 +1,18 @@
+settings:
+  env: dev
+logging:
+  config: classpath:logback-dev.xml
+mysql:
+  library:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/hqd?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2b8
+    username: root
+    password: 263519
+    maximum-pool-size: 40 #(core_count * 2) + effective_spindle_count
+    max-lifetime: 1800000
+    connection-timeout: 10000
+jwt:
+  expire:
+    second: 1200
+  secret:
+    key: 520156723@qq.com

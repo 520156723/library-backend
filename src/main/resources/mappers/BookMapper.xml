@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="per.hqd.library.dao.mapper.BookMapper">
+
+    <resultMap id="BaseResultMap" type="per.hqd.library.dao.entity.Book">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="count" property="count" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="is_delete" property="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        , name, count, create_time, update_time, is_delete
+    </sql>
+
+    <select id="selectByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from book
+        where is_delete = 0
+        limit #{from}, #{size}
+    </select>
+
+    <select id="selectByName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from book
+        where is_delete = 0
+        and name like #{name}
+    </select>
+
+    <insert id="createBooks">
+        insert into book (name, count) values
+        <foreach collection="books" item="item" separator=",">
+            (#{item.name}, #{item.count})
+        </foreach>
+    </insert>
+
+    <update id="deleteBooksByIds">
+        update book set is_delete =
+        case id
+        <foreach collection="ids" item="item" separator=' '>
+            when #{item} then 1
+        </foreach>
+        end
+        where id in
+        <foreach collection='ids' item='item' open='(' separator=',' close=')'>
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateBooks">
+        update book set name =
+        case id
+        <foreach collection="books" item="item" separator=' '>
+            when #{item.id} then #{item.name}
+        </foreach>
+        end
+        where id in
+        <foreach collection='books' item='item' open='(' separator=',' close=')'>
+            #{item.id}
+        </foreach>
+    </update>
+
+    <update id="modifyBooksCount">
+        update book set count =
+        case id
+        <foreach collection="books" item="item" separator=' '>
+            when #{item.id} then
+            <choose>
+                <when test="item.count >= 0">
+                    count + #{item.count}
+                </when>
+                <otherwise>
+                    count #{item.count}
+                </otherwise>
+            </choose>
+        </foreach>
+        end
+        where id in
+        <foreach collection='books' item='item' open='(' separator=',' close=')'>
+            #{item.id}
+        </foreach>
+    </update>
+</mapper>
